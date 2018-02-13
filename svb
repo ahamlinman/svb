@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage () {
+  cat <<'EOF'
+svb - the Simple Volume Backup tool
+
+Usage:
+  svb <command> <arguments...>
+
+Commands:
+  create    Back up a set of Docker volumes to an S3 folder
+  restore   Restore an S3 folder into a set of Docker volumes
+  help      Display this message
+
+svb is a simple set of wrappers around Docker and AWS CLI commands, designed to
+help back up and restore Docker volumes to/from S3.
+
+Note that svb requires AWS CLI credentials to be set up using beforehand using
+`aws configure`.
+EOF
+
+exit 1
+}
+
+[ "$#" -lt 1 ] && usage
+SUB="$1"
+shift
+
+[ ! -x "./cmd/svb-$SUB" ] && usage "Subcommand '$SUB' does not exist"
+
+exec "./cmd/svb-$SUB" "$@"

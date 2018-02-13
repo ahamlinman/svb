@@ -1,0 +1,61 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage () {
+  cat <<'EOF'
+svb create - Back up a set of Docker volumes to an S3 folder
+
+Usage:
+  svb create <bucket> <volumes...>
+
+svb create generates .tar.gz archives of the listed volumes and uses the AWS
+CLI to upload them to S3. The archives will be uploaded under a directory named
+with the current UNIX timestamp (`date +%s`).
+
+Note that svb will pull and run the "busybox" image from Docker Hub to create
+the archives.
+EOF
+
+if [ "$#" -eq 1 ]; then
+  echo -e "\nerror: $1"
+fi
+
+exit 1
+}
+
+if [ "$#" -lt 1 ]; then
+  usage "A bucket must be specified"
+elif [ "$#" -lt 2 ]; then
+  usage "At least one volume must be specified"
+fi
+
+cleanup () {
+  [ "$TODO_FILE" ] && rm "$TODO_FILE"
+}
+trap cleanup EXIT
+
+BUCKET="$1"
+shift
+
+TODO_FILE="$(mktemp)"
+while (( "$#" )); do
+  echo "$1" >> "$TODO_FILE"
+  shift
+done
+
+MISSING="$(comm -23 "$TODO_FILE" <(docker volume ls -q))"
+if [ "$MISSING" ]; then
+  echo -e "fatal: The following volumes are missing:\n$MISSING"
+  exit 2
+fi
+
+echo "Ensuring latest 'busybox' is available"
+docker pull busybox
+
+BACKUP_DIR="$(date +%s)"
+echo "Starting backup to s3://$BUCKET/$BACKUP_DIR"
+
+while read -r VOLUME; do
+  echo "$VOLUME"
+done < "$TODO_FILE"
