@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage () {
+  cat <<'EOF'
+svb recent - List the most recent backups to an S3 bucket
+
+Usage:
+  svb recent <bucket>
+
+svb recent displays the names of the last 5 backups to the given S3 bucket. It
+assumes that all folders in the bucket were created by `svb backup`, and that
+their names take the form of UNIX timestamps.
+EOF
+
+if [ "$#" -eq 1 ]; then
+  echo -e "\nerror: $1"
+fi
+
+exit 1
+}
+
+if [ "$#" -lt 1 ]; then
+  usage "A bucket must be specified"
+fi
+
+BUCKET="$1"
+
+echo "5 most recent backups (newest to oldest):"
+echo
+aws s3 ls "s3://$BUCKET/" | tr -cd '0-9\n' | sort -nr | head -n 5 \
+  | awk '{ $2=strftime("%Y-%m-%d %H:%M:%S %Z", $1); print $1 " (" $2 ")" }'
