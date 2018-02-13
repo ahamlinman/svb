@@ -1,0 +1,95 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage () {
+  cat <<'EOF'
+svb restore - Restore an S3 folder into a set of Docker volumes
+
+Usage:
+  svb restore <bucket> <backup> <volumes...>
+
+svb restore downloads .tar.gz archives from a specified backup in S3 and uses
+them to create and populate Docker volumes. Each .tar.gz file becomes a volume
+of the same name when restored.
+
+If no volumes are specified, all volumes in the S3 directory will be restored.
+svb restore will not restore to a Docker volume that already exists.
+EOF
+
+if [ "$#" -eq 1 ]; then
+  echo -e "\nerror: $1"
+fi
+
+exit 1
+}
+
+if [ "$#" -lt 1 ]; then
+  usage "A bucket must be specified"
+elif [ "$#" -lt 2 ]; then
+  usage "A backup must be specified"
+fi
+
+BUCKET="$1"
+BACKUP_DIR="$2"
+shift 2
+
+cleanup () {
+  [ "$VOLS_IN_BACKUP" ] && rm "$VOLS_IN_BACKUP"
+  [ "$VOLS_REQUESTED" ] && rm "$VOLS_REQUESTED"
+}
+trap cleanup EXIT
+
+VOLS_IN_BACKUP="$(mktemp)"
+VOLS_REQUESTED="$(mktemp)"
+
+set +e
+S3_VOLS="$(aws s3 ls "s3://$BUCKET/$BACKUP_DIR/")"
+if [ "$?" -ne 0 ]; then
+  echo "fatal: The resource s3://$BUCKET/$BACKUP_DIR/ does not exist"
+  exit 2
+fi
+set -e
+
+echo "$S3_VOLS" | awk '{ print $4 }' | sed 's/\.tar\.gz$//' > "$VOLS_IN_BACKUP"
+
+if [ "$#" -gt 0 ]; then
+  while (( "$#" )); do
+    echo "$1" >> "$VOLS_REQUESTED"
+    shift
+  done
+
+  MISSING_FROM_BACKUP="$(comm -23 "$VOLS_REQUESTED" "$VOLS_IN_BACKUP")"
+  if [ "$MISSING_FROM_BACKUP" ]; then
+    echo -e "fatal: The following volumes are not in the S3 backup:\n$MISSING_FROM_BACKUP"
+    exit 2
+  fi
+else
+  cp "$VOLS_IN_BACKUP" "$VOLS_REQUESTED"
+fi
+
+ALREADY_EXISTS="$(comm -12 "$VOLS_REQUESTED" <(docker volume ls -q))"
+if [ "$ALREADY_EXISTS" ]; then
+  echo "fatal: The following volumes already exist in Docker:"
+  echo "$ALREADY_EXISTS"
+fi
+
+echo "Ensuring latest 'busybox' is available"
+docker pull busybox
+echo
+
+echo "Starting restore from s3://$BUCKET/$BACKUP_DIR"
+echo
+
+while read -r VOLUME; do
+  echo "Restoring $VOLUME"
+
+  docker volume create "$VOLUME"
+  aws s3 cp "s3://$BUCKET/$BACKUP_DIR/$VOLUME.tar.gz" - \
+  | docker run -ia stdin -a stdout -a stderr --rm -v "$VOLUME:/volume" busybox tar xz -C /volume
+
+  echo "Finished restoring $VOLUME"
+  echo
+done < "$VOLS_REQUESTED"
+
+echo "Restore from $BACKUP_DIR successful"

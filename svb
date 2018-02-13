@@ -17,8 +17,10 @@ Commands:
 svb is a simple set of wrappers around Docker and AWS CLI commands, designed to
 help back up and restore Docker volumes to/from S3.
 
-Note that svb requires AWS CLI credentials to be set up using beforehand using
-`aws configure`.
+Notes:
+  * AWS CLI credentials must be set up using beforehand using `aws configure`
+  * svb will automatically pull the "busybox:latest" image from Docker Hub
+    before performing backup or restore operations
 EOF
 
 exit 1

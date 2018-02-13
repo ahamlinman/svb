@@ -12,9 +12,6 @@ Usage:
 svb create generates .tar.gz archives of the listed volumes and uses the AWS
 CLI to upload them to S3. The archives will be uploaded under a directory named
 with the current UNIX timestamp (`date +%s`).
-
-Note that svb will pull and run the "busybox" image from Docker Hub to create
-the archives.
 EOF
 
 if [ "$#" -eq 1 ]; then
@@ -30,13 +27,13 @@ elif [ "$#" -lt 2 ]; then
   usage "At least one volume must be specified"
 fi
 
+BUCKET="$1"
+shift
+
 cleanup () {
   [ "$TODO_FILE" ] && rm "$TODO_FILE"
 }
 trap cleanup EXIT
-
-BUCKET="$1"
-shift
 
 TODO_FILE="$(mktemp)"
 while (( "$#" )); do
