@@ -52,10 +52,20 @@ fi
 
 echo "Ensuring latest 'busybox' is available"
 docker pull busybox
+echo
 
 BACKUP_DIR="$(date +%s)"
 echo "Starting backup to s3://$BUCKET/$BACKUP_DIR"
+echo
 
 while read -r VOLUME; do
-  echo "$VOLUME"
+  echo "Backing up $VOLUME"
+
+  docker run --rm -v "$VOLUME:/volume" busybox tar cz -C /volume . \
+    | aws s3 cp - "s3://$BUCKET/$BACKUP_DIR/$VOLUME.tar.gz"
+
+  echo "Finished backing up $VOLUME"
+  echo
 done < "$TODO_FILE"
+
+echo "Backup $BACKUP_DIR successful"
