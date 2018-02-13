@@ -32,6 +32,6 @@ exit 1
 SUB="$1"
 shift
 
-[ ! -x "./cmd/svb-$SUB" ] && usage "Subcommand '$SUB' does not exist"
+[ ! -x "./svb-cmd/svb-$SUB" ] && usage "Subcommand '$SUB' does not exist"
 
-exec "./cmd/svb-$SUB" "$@"
+exec "./svb-cmd/svb-$SUB" "$@"
