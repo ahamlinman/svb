@@ -58,7 +58,7 @@ echo
 while read -r VOLUME; do
   echo "Backing up $VOLUME"
 
-  docker run --rm -v "$VOLUME:/volume" busybox tar cz -C /volume . \
+  docker run --rm -v "$VOLUME:/volume:ro" busybox tar cz -C /volume . \
     | aws s3 cp - "s3://$BUCKET/$BACKUP_DIR/$VOLUME.tar.gz"
 
   echo "Finished backing up $VOLUME"
