@@ -44,6 +44,9 @@ svb supports the following operations:
 * Restoring all volumes or a subset of volumes from a specified backup (folder)
   in an S3 bucket.
 * Listing recent backups to a specified S3 bucket.
+* Downloading the archives for a specified backup and listing the files in them
+  (to help you verify that the archives are readable and contain the expected
+  content).
 
 Full usage information can be obtained by running `svb help`.
 
