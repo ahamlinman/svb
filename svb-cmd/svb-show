@@ -1,0 +1,55 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage () {
+  cat <<'EOF'
+svb show - List the volumes and files in a specified backup
+
+Usage:
+  svb show <bucket> <backup>
+
+svb show downloads each .tar.gz archive in the specified backup and lists its
+contents. This may help you verify that backups are working as expected, and
+that the archives in the backup are not corrupted.
+EOF
+
+if [ "$#" -eq 1 ]; then
+  echo -e "\nerror: $1"
+fi
+
+exit 1
+}
+
+if [ "$#" -lt 1 ]; then
+  usage "A bucket must be specified"
+elif [ "$#" -lt 2 ]; then
+  usage "A backup must be specified"
+fi
+
+BUCKET="$1"
+BACKUP_DIR="$2"
+
+set +e
+S3_VOLS="$(aws s3 ls "s3://$BUCKET/$BACKUP_DIR/")"
+if [ "$?" -ne 0 ]; then
+  echo "fatal: The resource s3://$BUCKET/$BACKUP_DIR/ does not exist"
+  exit 2
+fi
+set -e
+
+VOLS_IN_BACKUP="$(echo "$S3_VOLS" | awk '{ print $4 }' | sed 's/\.tar\.gz$//')"
+
+echo "Ensuring latest 'busybox' is available"
+docker pull busybox
+echo
+
+echo "$VOLS_IN_BACKUP" | while read -r VOLUME; do
+  echo "Contents of $VOLUME"
+
+  aws s3 cp "s3://$BUCKET/$BACKUP_DIR/$VOLUME.tar.gz" - \
+  | docker run -ia stdin -a stdout -a stderr --rm busybox tar tz
+
+  echo
+done
+

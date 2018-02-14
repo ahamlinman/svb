@@ -14,6 +14,7 @@ Commands:
   create    Back up a set of Docker volumes to an S3 folder
   restore   Restore an S3 folder into a set of Docker volumes
   recent    List the most recent backups to an S3 bucket
+  show      List the volumes and files in a specified backup
   help      Display this message
 
 svb is a simple set of wrappers around Docker and AWS CLI commands, designed to
