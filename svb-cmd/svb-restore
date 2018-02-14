@@ -86,7 +86,8 @@ while read -r VOLUME; do
 
   docker volume create "$VOLUME"
   aws s3 cp "s3://$BUCKET/$BACKUP_DIR/$VOLUME.tar.gz" - \
-  | docker run -ia stdin -a stdout -a stderr --rm -v "$VOLUME:/volume" busybox tar xz -C /volume
+  | docker run --rm -ia stdin -a stdout -a stderr -v "$VOLUME:/volume" \
+    -e EXTRACT_UNSAFE_SYMLINKS=1 busybox tar xz -C /volume
 
   echo "Finished restoring $VOLUME"
   echo
