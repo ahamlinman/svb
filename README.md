@@ -13,16 +13,24 @@ flexible, and can use a config file or environment variables as needed.)
 [AWS CLI]: https://aws.amazon.com/cli/
 [Configuring the AWS CLI]: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
 
-An example invocation of svb using a Docker container (assuming the image is
-tagged `svb`) might look as follows:
+An example invocation of svb using a Docker container and environment variable
+configuration (assuming the image is tagged `svb`) might look as follows:
 
 ```
 docker run --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  -v "$HOME/.aws":/root/.aws
   -e AWS_ACCESS_KEY_ID=... \
   -e AWS_SECRET_ACCESS_KEY=... \
   -e AWS_DEFAULT_REGION=us-west-2 \
+  svb create my-bucket my-first-volume my-second-volume ...
+```
+
+Alternatively, using an AWS CLI config file from your home directory:
+
+```
+docker run --rm \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v "$HOME/.aws":/root/.aws \
   svb create my-bucket my-first-volume my-second-volume ...
 ```
 
