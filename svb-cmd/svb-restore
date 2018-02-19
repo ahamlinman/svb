@@ -62,7 +62,8 @@ if [ "$#" -gt 0 ]; then
 
   MISSING_FROM_BACKUP="$(comm -23 "$VOLS_REQUESTED" "$VOLS_IN_BACKUP")"
   if [ "$MISSING_FROM_BACKUP" ]; then
-    echo -e "fatal: The following volumes are not in the S3 backup:\n$MISSING_FROM_BACKUP"
+    echo "fatal: The following volumes are not in the S3 backup:"
+    echo "$MISSING_FROM_BACKUP"
     exit 2
   fi
 else
