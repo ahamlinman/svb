@@ -44,7 +44,8 @@ done
 
 MISSING="$(comm -23 "$TODO_FILE" <(docker volume ls -q))"
 if [ "$MISSING" ]; then
-  echo -e "fatal: The following volumes are missing:\n$MISSING"
+  echo "fatal: The following volumes do not exist in Docker:"
+  echo "$MISSING"
   exit 2
 fi
 
