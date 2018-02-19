@@ -73,6 +73,7 @@ ALREADY_EXISTS="$(comm -12 "$VOLS_REQUESTED" <(docker volume ls -q))"
 if [ "$ALREADY_EXISTS" ]; then
   echo "fatal: The following volumes already exist in Docker:"
   echo "$ALREADY_EXISTS"
+  exit 2
 fi
 
 echo "Ensuring latest 'busybox' is available"
