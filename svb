@@ -28,12 +28,16 @@ EOF
 
 if [ "$#" -eq 1 ]; then
   echo -e "\nerror: $1"
+  exit 1
 fi
 
-exit 1
+exit 0
 }
 
-[ "$#" -lt 1 ] && usage
+if [ "$#" -lt 1 ] || [ "$1" = "help" ]; then
+  usage
+fi
+
 SUB="$1"
 shift
 
