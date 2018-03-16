@@ -32,17 +32,17 @@ BUCKET="$1"
 shift
 
 cleanup () {
-  [ "$TODO_FILE" ] && rm "$TODO_FILE"
+  [ "$VOLS_REQUESTED_FILE" ] && rm "$VOLS_REQUESTED_FILE"
 }
 trap cleanup EXIT
 
-TODO_FILE="$(mktemp)"
+VOLS_REQUESTED_FILE="$(mktemp)"
 while (( "$#" )); do
-  echo "$1" >> "$TODO_FILE"
+  echo "$1" >> "$VOLS_REQUESTED_FILE"
   shift
 done
 
-MISSING="$(comm -23 "$TODO_FILE" <(docker volume ls -q))"
+MISSING="$(comm -23 "$VOLS_REQUESTED_FILE" <(docker volume ls -q))"
 if [ "$MISSING" ]; then
   echo "fatal: The following volumes do not exist in Docker:"
   echo "$MISSING"
@@ -65,6 +65,6 @@ while read -r VOLUME; do
 
   echo "Finished backing up $VOLUME"
   echo
-done < "$TODO_FILE"
+done < "$VOLS_REQUESTED_FILE"
 
 echo "Backup $BACKUP_DIR successful"

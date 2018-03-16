@@ -36,13 +36,13 @@ BACKUP_DIR="$2"
 shift 2
 
 cleanup () {
-  [ "$VOLS_IN_BACKUP" ] && rm "$VOLS_IN_BACKUP"
-  [ "$VOLS_REQUESTED" ] && rm "$VOLS_REQUESTED"
+  [ "$VOLS_IN_BACKUP_FILE" ] && rm "$VOLS_IN_BACKUP_FILE"
+  [ "$VOLS_REQUESTED_FILE" ] && rm "$VOLS_REQUESTED_FILE"
 }
 trap cleanup EXIT
 
-VOLS_IN_BACKUP="$(mktemp)"
-VOLS_REQUESTED="$(mktemp)"
+VOLS_IN_BACKUP_FILE="$(mktemp)"
+VOLS_REQUESTED_FILE="$(mktemp)"
 
 set +e
 S3_VOLS="$(aws s3 ls "s3://$BUCKET/$BACKUP_DIR/")"
@@ -52,25 +52,25 @@ if [ "$?" -ne 0 ]; then
 fi
 set -e
 
-echo "$S3_VOLS" | awk '{ print $4 }' | sed 's/\.tar\.gz$//' > "$VOLS_IN_BACKUP"
+echo "$S3_VOLS" | awk '{ print $4 }' | sed 's/\.tar\.gz$//' > "$VOLS_IN_BACKUP_FILE"
 
 if [ "$#" -gt 0 ]; then
   while (( "$#" )); do
-    echo "$1" >> "$VOLS_REQUESTED"
+    echo "$1" >> "$VOLS_REQUESTED_FILE"
     shift
   done
 
-  MISSING_FROM_BACKUP="$(comm -23 "$VOLS_REQUESTED" "$VOLS_IN_BACKUP")"
+  MISSING_FROM_BACKUP="$(comm -23 "$VOLS_REQUESTED_FILE" "$VOLS_IN_BACKUP_FILE")"
   if [ "$MISSING_FROM_BACKUP" ]; then
     echo "fatal: The following volumes are not in the S3 backup:"
     echo "$MISSING_FROM_BACKUP"
     exit 2
   fi
 else
-  cp "$VOLS_IN_BACKUP" "$VOLS_REQUESTED"
+  cp "$VOLS_IN_BACKUP_FILE" "$VOLS_REQUESTED_FILE"
 fi
 
-ALREADY_EXISTS="$(comm -12 "$VOLS_REQUESTED" <(docker volume ls -q))"
+ALREADY_EXISTS="$(comm -12 "$VOLS_REQUESTED_FILE" <(docker volume ls -q))"
 if [ "$ALREADY_EXISTS" ]; then
   echo "fatal: The following volumes already exist in Docker:"
   echo "$ALREADY_EXISTS"
@@ -94,6 +94,6 @@ while read -r VOLUME; do
 
   echo "Finished restoring $VOLUME"
   echo
-done < "$VOLS_REQUESTED"
+done < "$VOLS_REQUESTED_FILE"
 
 echo "Restore from $BACKUP_DIR successful"
