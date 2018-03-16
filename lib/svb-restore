@@ -18,11 +18,11 @@ If no volumes are specified, all volumes in the S3 directory will be restored.
 svb restore will not restore to a Docker volume that already exists.
 EOF
 
-if [ "$#" -eq 1 ]; then
-  echo -e "\nerror: $1"
-fi
+  if [ "$#" -eq 1 ]; then
+    echo -e "\nerror: $1"
+  fi
 
-exit 1
+  exit 1
 }
 
 if [ "$#" -lt 1 ]; then
