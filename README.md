@@ -1,40 +1,10 @@
 # svb
 
-svb is the Simple Volume Backup tool for Docker volumes. It's a small and
-opinionated set of scripts designed to regularly back up Docker volumes to an
-S3 bucket (and, of course, restore them later).
+svb is the Simple Volume Backup tool – a small and opinionated set of Bash
+scripts designed to back up Docker volumes as .tar.gz archives in an S3 bucket
+(and, of course, restore them later).
 
-## Setup
-
-Under the hood, svb uses the [AWS CLI] for all S3-related operations. This tool
-must be configured as described in [Configuring the AWS CLI]. (It's relatively
-flexible, and can use a config file or environment variables as needed.)
-
-[AWS CLI]: https://aws.amazon.com/cli/
-[Configuring the AWS CLI]: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
-
-An example invocation of svb using environment variable configuration might
-look as follows:
-
-```
-docker run --rm \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -e AWS_ACCESS_KEY_ID=... \
-  -e AWS_SECRET_ACCESS_KEY=... \
-  -e AWS_DEFAULT_REGION=us-west-2 \
-  docker.alexhamlin.co/server-tools/svb create my-bucket my-volumes...
-```
-
-Alternatively, using an AWS CLI config file from your home directory:
-
-```
-docker run --rm \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v "$HOME/.aws":/root/.aws \
-  docker.alexhamlin.co/server-tools/svb create my-bucket my-volumes...
-```
-
-## Usage
+## Features
 
 svb supports the following operations:
 
@@ -49,6 +19,45 @@ svb supports the following operations:
   content).
 
 Full usage information can be obtained by running `svb help`.
+
+## Usage
+
+### AWS Setup
+
+Under the hood, svb uses the [AWS CLI] for all S3-related operations. This tool
+must be configured as described in [Configuring the AWS CLI]. It's relatively
+flexible, and can use a config file or environment variables as needed.
+
+[AWS CLI]: https://aws.amazon.com/cli/
+[Configuring the AWS CLI]: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
+
+### Running in a Docker Container
+
+The latest version of svb is distributed as a Docker image:
+**docker.alexhamlin.co/server-tools/svb**. By bind-mounting your host's Docker
+socket as a volume, you can run svb commands without installing any additional
+tools. This is the preferred way to deploy and run svb.
+
+An example invocation, using environment variable configuration for the AWS
+CLI, might look as follows:
+
+```shell
+docker run --rm \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -e AWS_ACCESS_KEY_ID=... \
+  -e AWS_SECRET_ACCESS_KEY=... \
+  -e AWS_DEFAULT_REGION=us-west-2 \
+  docker.alexhamlin.co/server-tools/svb create my-bucket my-volumes...
+```
+
+Alternatively, using an AWS CLI config file from your home directory:
+
+```shell
+docker run --rm \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v "$HOME/.aws":/root/.aws \
+  docker.alexhamlin.co/server-tools/svb create my-bucket my-volumes...
+```
 
 ## Caveats
 
