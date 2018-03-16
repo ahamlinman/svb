@@ -3,6 +3,12 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+if [ -d "./lib" ]; then
+  SVB_BASE="${SVB_BASE:-./lib}"
+else
+  SVB_BASE="${SVB_BASE:-/usr/local/lib/svb}"
+fi
+
 usage () {
   cat <<'EOF'
 svb - the Simple Volume Backup tool
@@ -41,6 +47,6 @@ fi
 SUB="$1"
 shift
 
-[ ! -x "./svb-cmd/svb-$SUB" ] && usage "Subcommand '$SUB' does not exist"
+[ ! -x "$SVB_BASE/svb-$SUB" ] && usage "Subcommand '$SUB' does not exist"
 
-exec "./svb-cmd/svb-$SUB" "$@"
+exec "$SVB_BASE/svb-$SUB" "$@"

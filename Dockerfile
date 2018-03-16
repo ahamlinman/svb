@@ -7,6 +7,6 @@ RUN apk add --no-cache \
 RUN pip3 install --no-cache-dir awscli
 
 COPY svb /usr/local/bin/svb
-COPY svb-cmd /usr/local/bin/svb-cmd/
+COPY lib /usr/local/lib/svb/
 
 ENTRYPOINT ["/usr/local/bin/svb"]
