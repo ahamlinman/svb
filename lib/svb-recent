@@ -10,9 +10,9 @@ svb recent - List the most recent backups to an S3 bucket
 Usage:
   svb recent <bucket>
 
-svb recent displays the names of the last 5 backups to the given S3 bucket. It
-assumes that all folders in the bucket were created by `svb backup`, and that
-their names take the form of UNIX timestamps.
+svb recent displays the names and times of the last 5 backups to the given S3
+bucket. It assumes that all folders in the bucket were created by `svb backup`,
+and that their names take the form of UNIX timestamps.
 EOF
 
 if [ "$#" -eq 1 ]; then
