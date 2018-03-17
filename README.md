@@ -59,11 +59,14 @@ docker run --rm \
   docker.alexhamlin.co/server-tools/svb create my-bucket my-volumes...
 ```
 
-## Caveats
+## Notes and Caveats
 
+* All `tar` operations are performed in Busybox containers on the Docker host.
+  Because of this, most svb operations automatically run `docker pull busybox`.
 * svb assumes that your volumes are in a safe state to be backed up. For some
   types of content (e.g. data files for certain databases), you may need to
   stop other containers from accessing the volume to prevent corrupted backups.
+  (This is not unique to svb.)
 
 ## License
 
