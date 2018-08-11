@@ -33,7 +33,7 @@ Notes:
 EOF
 
   if [ "$#" -eq 1 ]; then
-    echo -e "\nerror: $1"
+    echo -e "\\nerror: $1"
     exit 1
   fi
 

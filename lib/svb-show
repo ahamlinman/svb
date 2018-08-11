@@ -16,7 +16,7 @@ that the archives in the backup are not corrupted.
 EOF
 
   if [ "$#" -eq 1 ]; then
-    echo -e "\nerror: $1"
+    echo -e "\\nerror: $1"
   fi
 
   exit 1
