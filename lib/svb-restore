@@ -45,8 +45,7 @@ VOLS_IN_BACKUP_FILE="$(mktemp)"
 VOLS_REQUESTED_FILE="$(mktemp)"
 
 set +e
-S3_VOLS="$(aws s3 ls "s3://$BUCKET/$BACKUP_DIR/")"
-if [ "$?" -ne 0 ]; then
+if ! S3_VOLS="$(aws s3 ls "s3://$BUCKET/$BACKUP_DIR/")"; then
   echo "fatal: The resource s3://$BUCKET/$BACKUP_DIR/ does not exist"
   exit 2
 fi
