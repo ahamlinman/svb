@@ -34,9 +34,11 @@ flexible, and can use a config file or environment variables as needed.
 ### Running in a Docker Container
 
 The latest version of svb is distributed as a Docker image on Docker Hub:
-**ahamlinman/svb**. By bind-mounting your host's Docker socket as a volume, you
-can run svb commands without installing any additional tools. This is the
+**[ahamlinman/svb]**. By bind-mounting your host's Docker socket as a volume,
+you can run svb commands without installing any additional tools. This is the
 preferred way to deploy and run svb.
+
+[ahamlinman/svb]: https://hub.docker.com/r/ahamlinman/svb/
 
 An example invocation, using environment variable configuration for the AWS
 CLI, might look as follows:
