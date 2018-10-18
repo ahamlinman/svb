@@ -33,10 +33,10 @@ flexible, and can use a config file or environment variables as needed.
 
 ### Running in a Docker Container
 
-The latest version of svb is distributed as a Docker image:
-**docker.alexhamlin.co/server-tools/svb**. By bind-mounting your host's Docker
-socket as a volume, you can run svb commands without installing any additional
-tools. This is the preferred way to deploy and run svb.
+The latest version of svb is distributed as a Docker image on Docker Hub:
+**ahamlinman/svb**. By bind-mounting your host's Docker socket as a volume, you
+can run svb commands without installing any additional tools. This is the
+preferred way to deploy and run svb.
 
 An example invocation, using environment variable configuration for the AWS
 CLI, might look as follows:
@@ -47,7 +47,7 @@ docker run --rm \
   -e AWS_ACCESS_KEY_ID=... \
   -e AWS_SECRET_ACCESS_KEY=... \
   -e AWS_DEFAULT_REGION=us-west-2 \
-  docker.alexhamlin.co/server-tools/svb create my-bucket my-volumes...
+  ahamlinman/svb create my-bucket my-volumes...
 ```
 
 Alternatively, using an AWS CLI config file from your home directory:
@@ -56,7 +56,7 @@ Alternatively, using an AWS CLI config file from your home directory:
 docker run --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v "$HOME/.aws":/root/.aws \
-  docker.alexhamlin.co/server-tools/svb create my-bucket my-volumes...
+  ahamlinman/svb create my-bucket my-volumes...
 ```
 
 ## Notes and Caveats
